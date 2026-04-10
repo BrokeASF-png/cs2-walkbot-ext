@@ -1,0 +1,38 @@
+# Build output
+x64/
+Win32/
+Debug/
+Release/
+*.exe
+*.pdb
+*.ilk
+*.obj
+*.iobj
+*.ipdb
+*.lib
+*.exp
+*.log
+*.tlog
+*.idb
+*.pch
+*.res
+
+# Visual Studio
+.vs/
+*.vcxproj.user
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# IDE/editor
+.vscode/
+.idea/
+
+# ImGui runtime layout
+imgui.ini
+
+# OS junk
+Thumbs.db
+.DS_Store
+desktop.ini

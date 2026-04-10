@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>CS2 WalkBot — Concept Map</title>
+<style>
+  :root{
+    --bg:#0b0f17; --panel:#121826; --line:#1e2940; --ink:#e6edf7; --muted:#8b9bb4;
+    --accent:#7cc4ff; --accent2:#a5f3c1; --accent3:#ffcf70; --accent4:#ff8fb1; --danger:#ff6b6b;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+  header{padding:28px 40px 8px;border-bottom:1px solid var(--line)}
+  h1{margin:0 0 4px;font-size:22px;letter-spacing:.5px}
+  header p{margin:0;color:var(--muted)}
+  main{padding:28px 40px 60px;max-width:1280px;margin:auto}
+  h2{font-size:15px;color:var(--accent);text-transform:uppercase;letter-spacing:1.2px;margin:32px 0 12px;border-left:3px solid var(--accent);padding-left:10px}
+  .grid{display:grid;gap:14px}
+  .row-pipeline{grid-template-columns:repeat(5,1fr)}
+  .node{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;position:relative}
+  .node h3{margin:0 0 6px;font-size:13px;color:var(--accent2);letter-spacing:.3px}
+  .node p{margin:0;color:var(--muted);font-size:12px;line-height:1.55}
+  .node code{color:var(--ink);background:#0b111c;padding:1px 5px;border-radius:4px;font-size:11.5px}
+  .arrows{display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:18px;padding:0 4px}
+  .row-pipeline .arrows{grid-column:unset}
+  .flex{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch}
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#0b111c;border:1px solid var(--line);color:var(--accent3);font-size:11px;margin-right:4px}
+  .aim-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:12px}
+  .aim-card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+  .aim-card h3{margin:0 0 8px;font-size:13px}
+  .legacy h3{color:#9ad0ff}
+  .servo h3{color:#a5f3c1}
+  .wind h3{color:#ffcf70}
+  .selector h3{color:#ff8fb1}
+  .aim-card ul{margin:6px 0 0;padding-left:18px;color:var(--muted);font-size:12px}
+  .eq{font-family:"Cascadia Mono","Consolas",monospace;color:#e6edf7;background:#0b111c;padding:8px 10px;border-radius:6px;font-size:12px;margin-top:8px;border:1px dashed #1e2940}
+  .wp{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+  .kv{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+  .kv div{background:#0b111c;border:1px solid #1a2336;border-radius:6px;padding:8px 10px}
+  .kv strong{color:var(--accent2);display:block;font-size:12px;letter-spacing:.3px}
+  .kv span{color:var(--muted);font-size:11.5px}
+  footer{color:var(--muted);font-size:11.5px;text-align:center;padding-top:30px}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+  .d-a{background:#9ad0ff}.d-b{background:#a5f3c1}.d-c{background:#ffcf70}
+</style>
+</head>
+<body>
+<header>
+  <h1>CS2 External WalkBot — Concept Map</h1>
+  <p>External C++20 · ReadProcessMemory + SendInput · ImGui/DX11 overlay · Waypoint path runner with humanized aim</p>
+</header>
+
+<main>
+
+<h2>Tick Pipeline</h2>
+<div class="grid row-pipeline">
+  <div class="node"><h3>cs2.exe memory</h3><p>Read player/pawn/velocity/viewmatrix via <code>ReadProcessMemory</code> + pattern scans.</p></div>
+  <div class="arrows">→</div>
+  <div class="node"><h3>Interfaces</h3><p><code>UpdateLocalPlayer</code> · <code>UpdateViewMatrix</code> populate <code>g_Globals</code>.</p></div>
+  <div class="arrows">→</div>
+  <div class="node"><h3>PathRunnerState</h3><p>Target selection · crouch/walk/jump flags · enemy wait · skip-ahead.</p></div>
+</div>
+<div class="grid row-pipeline" style="margin-top:10px">
+  <div class="node"><h3>Aim Backend</h3><p>LegacySmooth · AdaptiveServo · <b style="color:var(--accent3)">WindMouse+Fitts</b>.</p></div>
+  <div class="arrows">→</div>
+  <div class="node"><h3>Synthetic Input</h3><p><code>SendRelativeMouseMove</code> · <code>SendKeyboardKey</code> (W/S/Shift/Ctrl/Space).</p></div>
+  <div class="arrows">→</div>
+  <div class="node"><h3>Overlay Thread</h3><p>Transparent layered HWND · <code>WorldToScreen</code> · throttled by signature.</p></div>
+</div>
+
+<h2>Aim Humanization Backends</h2>
+<div class="aim-grid">
+  <div class="aim-card selector">
+    <h3>Dispatch (path_runner.cpp)</h3>
+    <p style="margin:0;color:var(--muted);font-size:12px">Switch on <code>EAimControlMode</code> per tick. Raw delta = angleDelta / (sens × m_yaw|m_pitch).</p>
+    <div class="eq">dx = pitchΔ / (sens·m_pitch)<br>dy = -yawΔ   / (sens·m_yaw)</div>
+    <ul>
+      <li><span class="dot d-a"></span>LegacySmooth — scalar EMA</li>
+      <li><span class="dot d-b"></span>AdaptiveServo — PID+jerk limit</li>
+      <li><span class="dot d-c"></span>WindMouse — stochastic+Fitts</li>
+    </ul>
+  </div>
+
+  <div class="aim-card legacy">
+    <h3>Legacy Smooth</h3>
+    <p style="margin:0;color:var(--muted);font-size:12px">Fast & deterministic. Simple 1-pole. No humanization.</p>
+    <div class="eq">out = round(raw · (1−smooth))</div>
+    <ul><li>Best for: recording/testing</li></ul>
+  </div>
+
+  <div class="aim-card servo">
+    <h3>Adaptive Servo (PID)</h3>
+    <p style="margin:0;color:var(--muted);font-size:12px">Per-axis cascade: v→a→j with cadence drift envelope.</p>
+    <div class="eq">a = clamp(resp·(v*−v), ±aMax)<br>v += a·dt  (|j|&lt;jMax)</div>
+    <ul><li>Tight tracking · energy-shaped</li><li>Best for: near-lock follow</li></ul>
+  </div>
+
+  <div class="aim-card wind">
+    <h3>WindMouse + Fitts <span class="pill">NEW</span></h3>
+    <p style="margin:0;color:var(--muted);font-size:12px">BenLand100 noise accumulator + Fitts's Law target velocity. Naturally slow near target.</p>
+    <div class="eq">mt = a + b·log₂(D/W+1)<br>v* = sign·(D/mt)<br>v += (v*−v)(1−e^−g·dt) + wind·dt<br>wind ← wind/√3 + rand·F/√5</div>
+    <ul><li>Humanized start-glide-settle</li><li>Reuses <code>HumanAxisState_t</code> velocity/residual/acceleration</li></ul>
+  </div>
+</div>
+
+<h2>Extended Waypoint Format</h2>
+<div class="wp">
+  <p style="margin:0;color:var(--muted);font-size:12.5px">
+    Backwards-compatible with old <code>paths.json</code>: new fields are only written when non-default.
+    Loader guards on <code>is_number()</code> / <code>is_array()</code>, flags are persisted as plain <code>int</code>.
+  </p>
+  <div class="kv">
+    <div><strong>pos / angle</strong><span>Vector + QAngle (existing)</span></div>
+    <div><strong>type</strong><span>Normal · MultiBranch</span></div>
+    <div><strong>branch_mode + next_indices</strong><span>Sequential · Random · Cycle</span></div>
+    <div><strong>flags (bitmask)</strong><span>CROUCH · JUMP · WALK · SNIPER · LADDER · PRECISE</span></div>
+    <div><strong>radius</strong><span>Per-waypoint reach (&lt;=0 → global)</span></div>
+    <div><strong>wait_time</strong><span>Seconds to pause on arrival</span></div>
+    <div><strong>desired_speed</strong><span>0..1; &lt;0.75 auto-holds Shift</span></div>
+    <div><strong>gaze_target</strong><span>Reserved: aim override on arrival</span></div>
+    <div><strong>runtime hooks</strong><span>JUMP pulses Space · WAIT gates motion</span></div>
+  </div>
+</div>
+
+<h2>Runtime State Handoff</h2>
+<div class="flex">
+  <div class="node" style="flex:1 1 280px">
+    <h3>Arrival Handler</h3>
+    <p>On <code>currentWaypointIndex</code> change: fire JUMP pulse, seed <code>waitRemainingSeconds</code>, rearm for next waypoint. Wait decrements dt and zeros motion until expired.</p>
+  </div>
+  <div class="node" style="flex:1 1 280px">
+    <h3>Crouch / Walk Resolution</h3>
+    <p><code>WPF_CROUCH</code> OR auto-crouch-on-lower-target. Walk = <code>WPF_WALK</code> OR <code>desiredSpeed&lt;0.75</code>. Shift key released in all stop paths.</p>
+  </div>
+  <div class="node" style="flex:1 1 280px">
+    <h3>dt &amp; Humanized Axes</h3>
+    <p><code>ComputeControlDeltaSeconds</code> seeds from first real sample (no more 1/120 hardcode). <code>HumanAxisState_t</code> resets on mode switch &amp; stop.</p>
+  </div>
+</div>
+
+<footer>Generated 2026-04-10 · CS2_WalkBot_Ext · phase A (humanized aim) + phase B (path format) complete</footer>
+</main>
+</body>
+</html>

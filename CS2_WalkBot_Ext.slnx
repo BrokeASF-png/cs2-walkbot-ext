@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="CS2_WalkBot_Ext/CS2_WalkBot_Ext.vcxproj" Id="88f034f6-1916-490c-921c-5a581dc4a81f" />
+</Solution>
