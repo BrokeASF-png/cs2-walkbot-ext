@@ -1,5 +1,24 @@
 # CS2 WalkBot (External)
 
+<!-- dwgx-banner:BEGIN -->
+<div align="center">
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/banner.svg?t=390c086a53e4" />
+  <source media="(prefers-color-scheme: light)" srcset="docs/assets/banner-light.svg?t=390c086a53e4" />
+  <img src="docs/assets/banner.svg?t=390c086a53e4" width="100%" alt="cs2-walkbot-ext — CS2 外部走路机器人 · WindMouse + Fitts 人性化瞄准 · ImGui/DX11 叠加层" />
+</picture>
+
+<br/>
+
+C · none · ★6
+
+[issues](https://github.com/dwgx/cs2-walkbot-ext/issues)
+
+</div>
+<!-- dwgx-banner:END -->
+
+
 **CS2 外部路径机器人 — 纯外部、无注入的 Counter-Strike 2 自动巡逻工具**
 
 A fully external (no injection, no hooks) Counter-Strike 2 walkbot with humanized aim, waypoint path running, and a DX11 overlay.
