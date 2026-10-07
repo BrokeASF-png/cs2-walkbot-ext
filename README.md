@@ -4,14 +4,14 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/banner.svg?t=90e96c06764e" />
-  <source media="(prefers-color-scheme: light)" srcset="docs/assets/banner-light.svg?t=90e96c06764e" />
-  <img src="docs/assets/banner.svg?t=90e96c06764e" width="100%" alt="cs2-walkbot-ext — CS2 外部走路机器人 · WindMouse + Fitts 人性化瞄准 · ImGui/DX11 叠加层" />
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/banner.svg?t=cf9c0f356ae3" />
+  <source media="(prefers-color-scheme: light)" srcset="docs/assets/banner-light.svg?t=cf9c0f356ae3" />
+  <img src="docs/assets/banner.svg?t=cf9c0f356ae3" width="100%" alt="cs2-walkbot-ext — CS2 外部走路机器人 · WindMouse + Fitts 人性化瞄准 · ImGui/DX11 叠加层" />
 </picture>
 
 <br/>
 
-C · none · ★6
+C · none · ★5
 
 [issues](https://github.com/dwgx/cs2-walkbot-ext/issues)
 
